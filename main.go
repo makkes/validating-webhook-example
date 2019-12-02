@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"path/filepath"
 )
 
 type AdmissionRequest struct {
@@ -41,14 +40,6 @@ func main() {
 	if listenPort == "" {
 		listenPort = "443"
 	}
-	filepath.Walk("/tls", func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			fmt.Printf("error accessing %q: %v\n", path, err)
-			return err
-		}
-		fmt.Printf("%q\n", path)
-		return nil
-	})
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {

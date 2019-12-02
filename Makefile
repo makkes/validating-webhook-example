@@ -1,4 +1,4 @@
-DOCKER_IMG ?= "makkes/webhook-example:dev"
+DOCKER_IMG ?= "makkes/minimal-webhook:dev"
 
 .DEFAULT_GOAL := docker-build
 
@@ -16,3 +16,6 @@ deploy-webhook:
 	kubectl apply -f webhook.yaml
 
 deploy: docker-push deploy-webhook
+
+undeploy:
+	kubectl delete -f webhook.yaml
