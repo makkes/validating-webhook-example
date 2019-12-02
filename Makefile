@@ -13,7 +13,7 @@ docker-push: docker-build
 	docker push $(DOCKER_IMG)
 
 deploy-webhook:
-	kubectl apply -f webhook.yaml
+	cat webhook.yaml | sed s~##DOCKER_IMG##~$(DOCKER_IMG)~ | kubectl apply -f -
 
 deploy: docker-push deploy-webhook
 

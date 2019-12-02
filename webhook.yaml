@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
         - name: minimal-webhook
-          image: makkes/minimal-webhook:dev
+          image: ##DOCKER_IMG##
           volumeMounts:
             - name: tls-cert
               mountPath: "/tls/cert"

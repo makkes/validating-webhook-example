@@ -14,10 +14,10 @@ If you don't have `cert-manager` installed in your cluster, do that now:
 $ make deploy-cert-manager
 ```
 
-Then build, push and roll out the webhook:
+Then build, push and roll out the webhook (make sure to set your Docker Hub username accordingly):
 
 ```sh
-$ make deploy
+$ make deploy DOCKER_IMG=YOUR_DOCKER_HUB_USER/minimal-webhook:dev
 ```
 
 Try to spin up a pod in another terminal window:
