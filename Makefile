@@ -4,7 +4,7 @@ DOCKER_IMG ?= "makkes/minimal-webhook:dev"
 
 deploy-cert-manager:
 	kubectl create namespace cert-manager
-	kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.12.0-beta.1/cert-manager.yaml
+	kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.10.1/cert-manager.yaml
 
 docker-build:
 	docker build -t $(DOCKER_IMG) .

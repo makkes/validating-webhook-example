@@ -46,6 +46,7 @@ func main() {
 			rw.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		fmt.Printf("%s\n", body)
 		var admissionReview AdmissionReview
 		err = json.Unmarshal(body, &admissionReview)
 		if err != nil {
