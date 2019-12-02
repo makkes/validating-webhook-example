@@ -1,0 +1,73 @@
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: makkes-pod-hook-cert
+spec:
+  secretName: makkes-pod-hook-cert-tls
+  dnsNames:
+    - makkes-pod-hook-service.default.svc
+  issuerRef:
+    name: selfsigning-issuer
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: makkes-pod-hook-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: makkes-pod-hook-pod
+  template:
+    metadata:
+      labels:
+        app: makkes-pod-hook-pod
+    spec:
+      containers:
+        - name: makkes-pod-hook-pod-container
+          image: makkes/pod-hook-webhook:dev
+          volumeMounts:
+            - name: tls-cert
+              mountPath: "/tls/cert"
+              readOnly: true
+          ports:
+            - containerPort: 443
+      volumes:
+        - name: tls-cert
+          secret:
+            secretName: makkes-pod-hook-cert-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: makkes-pod-hook-service
+spec:
+  selector:
+    app: makkes-pod-hook-pod
+  ports:
+    - port: 443
+      targetPort: 443
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: makkes-pod-hook
+  annotations:
+    cert-manager.io/inject-ca-from: default/makkes-pod-hook-cert
+webhooks:
+  - name: makkes-pod-hook.makk.es
+    sideEffects: None
+    admissionReviewVersions: ["v1", "v1beta1"]
+    clientConfig:
+      service:
+        name: makkes-pod-hook-service
+        namespace: default
+        port: 443
+    rules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+        operations: ["CREATE"]
