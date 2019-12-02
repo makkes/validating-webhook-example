@@ -12,10 +12,7 @@ docker-build:
 docker-push: docker-build
 	docker push $(DOCKER_IMG)
 
-deploy-ca:
-	kubectl apply -f ca.yaml
-
-deploy-webhook: deploy-ca
+deploy-webhook:
 	kubectl apply -f webhook.yaml
 
-deploy: docker-push deploy-ca deploy-webhook
+deploy: docker-push deploy-webhook
