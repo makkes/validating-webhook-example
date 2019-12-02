@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	admissionv1 "k8s.io/api/admission/v1"
 )
 
 type AdmissionRequest struct {
@@ -24,15 +26,16 @@ type AdmissionReview struct {
 	Response   AdmissionResponse `json:"response,omitempty"`
 }
 
-func applyForAdmission(req AdmissionReview) AdmissionReview {
-	return AdmissionReview{
-		APIVersion: req.APIVersion,
-		Kind:       req.Kind,
-		Response: AdmissionResponse{
+func applyForAdmission(req admissionv1.AdmissionReview) admissionv1.AdmissionReview {
+	res := admissionv1.AdmissionReview{
+		Response: &admissionv1.AdmissionResponse{
 			UID:     req.Request.UID,
 			Allowed: true,
 		},
 	}
+	res.APIVersion = req.APIVersion
+	res.Kind = req.Kind
+	return res
 }
 
 func main() {
@@ -47,18 +50,21 @@ func main() {
 			return
 		}
 		fmt.Printf("%s\n", body)
-		var admissionReview AdmissionReview
-		err = json.Unmarshal(body, &admissionReview)
-		if err != nil {
+
+		var admissionReview admissionv1.AdmissionReview
+		if err := json.Unmarshal(body, &admissionReview); err != nil {
+			fmt.Fprintf(os.Stderr, "Error unmarshalling request: %v\n", err)
 			rw.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		resp := applyForAdmission(admissionReview)
 		respBody, err := json.Marshal(resp)
 		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error marshalling response: %v\n", err)
 			rw.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		fmt.Printf("Responding: %s\n", respBody)
 		rw.WriteHeader(http.StatusOK)
 		rw.Header().Add("content-type", "application/json")
 		_, err = rw.Write(respBody)
