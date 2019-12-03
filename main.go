@@ -10,22 +10,6 @@ import (
 	admissionv1 "k8s.io/api/admission/v1"
 )
 
-type AdmissionRequest struct {
-	UID string `json:"uid"`
-}
-
-type AdmissionResponse struct {
-	UID     string `json:"uid"`
-	Allowed bool   `json:"allowed"`
-}
-
-type AdmissionReview struct {
-	APIVersion string            `json:"apiVersion"`
-	Kind       string            `json:"kind"`
-	Request    AdmissionRequest  `json:"request,omitempty"`
-	Response   AdmissionResponse `json:"response,omitempty"`
-}
-
 func applyForAdmission(req admissionv1.AdmissionReview) admissionv1.AdmissionReview {
 	res := admissionv1.AdmissionReview{
 		Response: &admissionv1.AdmissionResponse{
